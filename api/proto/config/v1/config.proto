@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package config.v1;
+
+option go_package = "go-notification/api/gen/config/v1;configv1";
+
+// RetryConfig 表示重试策略配置
+message RetryConfig {
+  int32 max_attempts = 1;
+  int32 initial_backoff_ms = 2;
+  int32 max_backoff_ms = 3;
+  double backoff_multiplier = 4;
+}
+
+message ChannelItem {
+  string channel = 1;
+  int32 priority = 2;
+  bool enabled = 3;
+}
+
+message ChannelConfig {
+  repeated ChannelItem channels = 1;
+  RetryConfig retry_policy = 2;
+}
+
+message TxnConfig {
+  string service_name = 1;
+  int32 initial_delay = 2;
+  RetryConfig retry_policy = 3;
+}
+
+message MonthlyConfig {
+  int32 sms = 1;
+  int32 email = 2;
+}
+
+message QuotaConfig {
+  MonthlyConfig monthly = 1;
+}
+
+message CallbackConfig {
+  string service_name = 1;
+  RetryConfig retry_policy = 2;
+}
+
+message BusinessConfig {
+  int64 owner_id = 1;
+  string owner_type = 2;
+  ChannelConfig channel_config = 3;
+  TxnConfig txn_config = 4;
+  int32 rete_limit = 5;
+  QuotaConfig quota = 6;
+  CallbackConfig callback_config = 7;
+}
+
+service BusinessConfigService {
+  // GetByIDs 通过其ID检索多个业务配置
+  rpc GetByIDs(GetByIDsRequest) returns (GetByIDsResponse) {}
+
+  // GetByID 通过其ID检索单个业务配置
+  rpc GetByID(GetByIDRequest) returns (GetByIDResponse) {}
+
+  // Delete 按ID删除业务配置
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+
+  // SaveConfig 保存业务配置的非零字段
+  rpc SaveConfig(SaveConfigRequest) returns (SaveConfigResponse) {}
+}
+
+message GetByIDsRequest {
+  repeated int64 ids = 1;
+}
+
+message GetByIDsResponse {
+  map<int64, BusinessConfig> configs = 1;
+}
+
+message GetByIDRequest {
+  int64 id = 1;
+}
+
+message GetByIDResponse {
+  BusinessConfig config = 1;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message SaveConfigRequest {
+  SaveConfigRequest config = 1;
+}
+
+message SaveConfigResponse {
+  bool success = 1;
+}

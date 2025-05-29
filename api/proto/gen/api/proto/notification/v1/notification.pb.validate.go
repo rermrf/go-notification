@@ -637,6 +637,8 @@ func (m *SendNotificationResponse) validate(all bool) error {
 
 	// no validation rules for NotificationId
 
+	// no validation rules for Status
+
 	// no validation rules for ErrorCode
 
 	// no validation rules for ErrorMessage
@@ -1121,7 +1123,7 @@ func (m *SendNotificationBatchResponse) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetResponses() {
+	for idx, item := range m.GetResults() {
 		_, _ = idx, item
 
 		if all {
@@ -1129,7 +1131,7 @@ func (m *SendNotificationBatchResponse) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, SendNotificationBatchResponseValidationError{
-						field:  fmt.Sprintf("Responses[%v]", idx),
+						field:  fmt.Sprintf("Results[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1137,7 +1139,7 @@ func (m *SendNotificationBatchResponse) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, SendNotificationBatchResponseValidationError{
-						field:  fmt.Sprintf("Responses[%v]", idx),
+						field:  fmt.Sprintf("Results[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1146,7 +1148,7 @@ func (m *SendNotificationBatchResponse) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return SendNotificationBatchResponseValidationError{
-					field:  fmt.Sprintf("Responses[%v]", idx),
+					field:  fmt.Sprintf("Results[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

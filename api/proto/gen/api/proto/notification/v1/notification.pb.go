@@ -80,6 +80,71 @@ func (Channel) EnumDescriptor() ([]byte, []int) {
 }
 
 // 通知发送状态枚举
+type SendStatus int32
+
+const (
+	// 未指定消息通知发送状态
+	SendStatus_SEND_STATUS_UNSPECIFIED SendStatus = 0
+	// 事物消息，准备阶段
+	SendStatus_PEWPARE SendStatus = 1
+	// 事务消息，取消发送
+	SendStatus_CANCELED SendStatus = 2
+	// 等待发送，普通消息的默认状态，事物消息的确认发送状态（二者重合故用一个状态表示）
+	SendStatus_PENDING SendStatus = 3
+	// 发送成功
+	SendStatus_SUCCEEDED SendStatus = 4
+	// 发送失败
+	SendStatus_FAILED SendStatus = 5
+)
+
+// Enum value maps for SendStatus.
+var (
+	SendStatus_name = map[int32]string{
+		0: "SEND_STATUS_UNSPECIFIED",
+		1: "PEWPARE",
+		2: "CANCELED",
+		3: "PENDING",
+		4: "SUCCEEDED",
+		5: "FAILED",
+	}
+	SendStatus_value = map[string]int32{
+		"SEND_STATUS_UNSPECIFIED": 0,
+		"PEWPARE":                 1,
+		"CANCELED":                2,
+		"PENDING":                 3,
+		"SUCCEEDED":               4,
+		"FAILED":                  5,
+	}
+)
+
+func (x SendStatus) Enum() *SendStatus {
+	p := new(SendStatus)
+	*p = x
+	return p
+}
+
+func (x SendStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SendStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_notification_v1_notification_proto_enumTypes[1].Descriptor()
+}
+
+func (SendStatus) Type() protoreflect.EnumType {
+	return &file_api_proto_notification_v1_notification_proto_enumTypes[1]
+}
+
+func (x SendStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SendStatus.Descriptor instead.
+func (SendStatus) EnumDescriptor() ([]byte, []int) {
+	return file_api_proto_notification_v1_notification_proto_rawDescGZIP(), []int{1}
+}
+
+// 错误代码枚举
 type ErrorCode int32
 
 const (
@@ -172,11 +237,11 @@ func (x ErrorCode) String() string {
 }
 
 func (ErrorCode) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_proto_notification_v1_notification_proto_enumTypes[1].Descriptor()
+	return file_api_proto_notification_v1_notification_proto_enumTypes[2].Descriptor()
 }
 
 func (ErrorCode) Type() protoreflect.EnumType {
-	return &file_api_proto_notification_v1_notification_proto_enumTypes[1]
+	return &file_api_proto_notification_v1_notification_proto_enumTypes[2]
 }
 
 func (x ErrorCode) Number() protoreflect.EnumNumber {
@@ -185,7 +250,7 @@ func (x ErrorCode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ErrorCode.Descriptor instead.
 func (ErrorCode) EnumDescriptor() ([]byte, []int) {
-	return file_api_proto_notification_v1_notification_proto_rawDescGZIP(), []int{1}
+	return file_api_proto_notification_v1_notification_proto_rawDescGZIP(), []int{2}
 }
 
 // 通知发送策略定义
@@ -473,10 +538,12 @@ type SendNotificationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 通知平台生产的通知ID
 	NotificationId uint64 `protobuf:"varint,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	// 发送状态
+	Status SendStatus `protobuf:"varint,2,opt,name=status,proto3,enum=notification.v1.SendStatus" json:"status,omitempty"`
 	// 发送时的错误代码
-	ErrorCode ErrorCode `protobuf:"varint,2,opt,name=error_code,json=errorCode,proto3,enum=notification.v1.ErrorCode" json:"error_code,omitempty"`
+	ErrorCode ErrorCode `protobuf:"varint,3,opt,name=error_code,json=errorCode,proto3,enum=notification.v1.ErrorCode" json:"error_code,omitempty"`
 	// 错误信息
-	ErrorMessage  string `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	ErrorMessage  string `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -516,6 +583,13 @@ func (x *SendNotificationResponse) GetNotificationId() uint64 {
 		return x.NotificationId
 	}
 	return 0
+}
+
+func (x *SendNotificationResponse) GetStatus() SendStatus {
+	if x != nil {
+		return x.Status
+	}
+	return SendStatus_SEND_STATUS_UNSPECIFIED
 }
 
 func (x *SendNotificationResponse) GetErrorCode() ErrorCode {
@@ -690,7 +764,7 @@ func (x *SendNotificationBatchRequest) GetNotifications() []*Notification {
 type SendNotificationBatchResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 所有结果
-	Responses []*SendNotificationResponse `protobuf:"bytes,1,rep,name=responses,proto3" json:"responses,omitempty"`
+	Results []*SendNotificationResponse `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
 	// 总数
 	TotalCount int32 `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
 	// 成功数
@@ -729,9 +803,9 @@ func (*SendNotificationBatchResponse) Descriptor() ([]byte, []int) {
 	return file_api_proto_notification_v1_notification_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *SendNotificationBatchResponse) GetResponses() []*SendNotificationResponse {
+func (x *SendNotificationBatchResponse) GetResults() []*SendNotificationResponse {
 	if x != nil {
-		return x.Responses
+		return x.Results
 	}
 	return nil
 }
@@ -1348,12 +1422,13 @@ const file_api_proto_notification_v1_notification_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\\\n" +
 	"\x17SendNotificationRequest\x12A\n" +
-	"\fnotification\x18\x01 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\xa3\x01\n" +
+	"\fnotification\x18\x01 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\xd8\x01\n" +
 	"\x18SendNotificationResponse\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\x04R\x0enotificationId\x129\n" +
+	"\x0fnotification_id\x18\x01 \x01(\x04R\x0enotificationId\x123\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x1b.notification.v1.SendStatusR\x06status\x129\n" +
 	"\n" +
-	"error_code\x18\x02 \x01(\x0e2\x1a.notification.v1.ErrorCodeR\terrorCode\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"a\n" +
+	"error_code\x18\x03 \x01(\x0e2\x1a.notification.v1.ErrorCodeR\terrorCode\x12#\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"a\n" +
 	"\x1cSendNotificationAsyncRequest\x12A\n" +
 	"\fnotification\x18\x01 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\xa8\x01\n" +
 	"\x1dSendNotificationAsyncResponse\x12'\n" +
@@ -1362,9 +1437,9 @@ const file_api_proto_notification_v1_notification_proto_rawDesc = "" +
 	"error_code\x18\x02 \x01(\x0e2\x1a.notification.v1.ErrorCodeR\terrorCode\x12#\n" +
 	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"c\n" +
 	"\x1cSendNotificationBatchRequest\x12C\n" +
-	"\rnotifications\x18\x01 \x03(\v2\x1d.notification.v1.NotificationR\rnotifications\"\xae\x01\n" +
-	"\x1dSendNotificationBatchResponse\x12G\n" +
-	"\tresponses\x18\x01 \x03(\v2).notification.v1.SendNotificationResponseR\tresponses\x12\x1f\n" +
+	"\rnotifications\x18\x01 \x03(\v2\x1d.notification.v1.NotificationR\rnotifications\"\xaa\x01\n" +
+	"\x1dSendNotificationBatchResponse\x12C\n" +
+	"\aresults\x18\x01 \x03(\v2).notification.v1.SendNotificationResponseR\aresults\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
 	"totalCount\x12#\n" +
 	"\rsuccess_count\x18\x03 \x01(\x05R\fsuccessCount\"h\n" +
@@ -1386,7 +1461,16 @@ const file_api_proto_notification_v1_notification_proto_rawDesc = "" +
 	"\x03SMS\x10\x01\x12\t\n" +
 	"\x05EMAIL\x10\x02\x12\n" +
 	"\n" +
-	"\x06IN_APP\x10\x03*\x9e\x03\n" +
+	"\x06IN_APP\x10\x03*l\n" +
+	"\n" +
+	"SendStatus\x12\x1b\n" +
+	"\x17SEND_STATUS_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aPEWPARE\x10\x01\x12\f\n" +
+	"\bCANCELED\x10\x02\x12\v\n" +
+	"\aPENDING\x10\x03\x12\r\n" +
+	"\tSUCCEEDED\x10\x04\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x05*\x9e\x03\n" +
 	"\tErrorCode\x12\x1a\n" +
 	"\x16ERROR_CODE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11INVALID_PARAMETER\x10\x01\x12\x10\n" +
@@ -1428,73 +1512,75 @@ func file_api_proto_notification_v1_notification_proto_rawDescGZIP() []byte {
 	return file_api_proto_notification_v1_notification_proto_rawDescData
 }
 
-var file_api_proto_notification_v1_notification_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_api_proto_notification_v1_notification_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_api_proto_notification_v1_notification_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_api_proto_notification_v1_notification_proto_goTypes = []any{
 	(Channel)(0),                               // 0: notification.v1.Channel
-	(ErrorCode)(0),                             // 1: notification.v1.ErrorCode
-	(*SendStrategy)(nil),                       // 2: notification.v1.SendStrategy
-	(*Notification)(nil),                       // 3: notification.v1.Notification
-	(*SendNotificationRequest)(nil),            // 4: notification.v1.SendNotificationRequest
-	(*SendNotificationResponse)(nil),           // 5: notification.v1.SendNotificationResponse
-	(*SendNotificationAsyncRequest)(nil),       // 6: notification.v1.SendNotificationAsyncRequest
-	(*SendNotificationAsyncResponse)(nil),      // 7: notification.v1.SendNotificationAsyncResponse
-	(*SendNotificationBatchRequest)(nil),       // 8: notification.v1.SendNotificationBatchRequest
-	(*SendNotificationBatchResponse)(nil),      // 9: notification.v1.SendNotificationBatchResponse
-	(*SendNotificationBatchAsyncRequest)(nil),  // 10: notification.v1.SendNotificationBatchAsyncRequest
-	(*SendNotificationBatchAsyncResponse)(nil), // 11: notification.v1.SendNotificationBatchAsyncResponse
-	(*PrepareTxRequest)(nil),                   // 12: notification.v1.PrepareTxRequest
-	(*PrepareTxResponse)(nil),                  // 13: notification.v1.PrepareTxResponse
-	(*CommitTxRequest)(nil),                    // 14: notification.v1.CommitTxRequest
-	(*CommitTxResponse)(nil),                   // 15: notification.v1.CommitTxResponse
-	(*CancelTxRequest)(nil),                    // 16: notification.v1.CancelTxRequest
-	(*CancelTxResponse)(nil),                   // 17: notification.v1.CancelTxResponse
-	(*SendStrategy_ImmediateStrategy)(nil),     // 18: notification.v1.SendStrategy.ImmediateStrategy
-	(*SendStrategy_DelayedStrategy)(nil),       // 19: notification.v1.SendStrategy.DelayedStrategy
-	(*SendStrategy_ScheduledStrategy)(nil),     // 20: notification.v1.SendStrategy.ScheduledStrategy
-	(*SendStrategy_TimeWindowStrategy)(nil),    // 21: notification.v1.SendStrategy.TimeWindowStrategy
-	(*SendStrategy_DeadlineStrategy)(nil),      // 22: notification.v1.SendStrategy.DeadlineStrategy
-	nil,                                        // 23: notification.v1.Notification.TemplateParamsEntry
-	(*timestamppb.Timestamp)(nil),              // 24: google.protobuf.Timestamp
+	(SendStatus)(0),                            // 1: notification.v1.SendStatus
+	(ErrorCode)(0),                             // 2: notification.v1.ErrorCode
+	(*SendStrategy)(nil),                       // 3: notification.v1.SendStrategy
+	(*Notification)(nil),                       // 4: notification.v1.Notification
+	(*SendNotificationRequest)(nil),            // 5: notification.v1.SendNotificationRequest
+	(*SendNotificationResponse)(nil),           // 6: notification.v1.SendNotificationResponse
+	(*SendNotificationAsyncRequest)(nil),       // 7: notification.v1.SendNotificationAsyncRequest
+	(*SendNotificationAsyncResponse)(nil),      // 8: notification.v1.SendNotificationAsyncResponse
+	(*SendNotificationBatchRequest)(nil),       // 9: notification.v1.SendNotificationBatchRequest
+	(*SendNotificationBatchResponse)(nil),      // 10: notification.v1.SendNotificationBatchResponse
+	(*SendNotificationBatchAsyncRequest)(nil),  // 11: notification.v1.SendNotificationBatchAsyncRequest
+	(*SendNotificationBatchAsyncResponse)(nil), // 12: notification.v1.SendNotificationBatchAsyncResponse
+	(*PrepareTxRequest)(nil),                   // 13: notification.v1.PrepareTxRequest
+	(*PrepareTxResponse)(nil),                  // 14: notification.v1.PrepareTxResponse
+	(*CommitTxRequest)(nil),                    // 15: notification.v1.CommitTxRequest
+	(*CommitTxResponse)(nil),                   // 16: notification.v1.CommitTxResponse
+	(*CancelTxRequest)(nil),                    // 17: notification.v1.CancelTxRequest
+	(*CancelTxResponse)(nil),                   // 18: notification.v1.CancelTxResponse
+	(*SendStrategy_ImmediateStrategy)(nil),     // 19: notification.v1.SendStrategy.ImmediateStrategy
+	(*SendStrategy_DelayedStrategy)(nil),       // 20: notification.v1.SendStrategy.DelayedStrategy
+	(*SendStrategy_ScheduledStrategy)(nil),     // 21: notification.v1.SendStrategy.ScheduledStrategy
+	(*SendStrategy_TimeWindowStrategy)(nil),    // 22: notification.v1.SendStrategy.TimeWindowStrategy
+	(*SendStrategy_DeadlineStrategy)(nil),      // 23: notification.v1.SendStrategy.DeadlineStrategy
+	nil,                                        // 24: notification.v1.Notification.TemplateParamsEntry
+	(*timestamppb.Timestamp)(nil),              // 25: google.protobuf.Timestamp
 }
 var file_api_proto_notification_v1_notification_proto_depIdxs = []int32{
-	18, // 0: notification.v1.SendStrategy.immediate:type_name -> notification.v1.SendStrategy.ImmediateStrategy
-	19, // 1: notification.v1.SendStrategy.delayed:type_name -> notification.v1.SendStrategy.DelayedStrategy
-	20, // 2: notification.v1.SendStrategy.scheduled:type_name -> notification.v1.SendStrategy.ScheduledStrategy
-	21, // 3: notification.v1.SendStrategy.time_window:type_name -> notification.v1.SendStrategy.TimeWindowStrategy
-	22, // 4: notification.v1.SendStrategy.deadline:type_name -> notification.v1.SendStrategy.DeadlineStrategy
+	19, // 0: notification.v1.SendStrategy.immediate:type_name -> notification.v1.SendStrategy.ImmediateStrategy
+	20, // 1: notification.v1.SendStrategy.delayed:type_name -> notification.v1.SendStrategy.DelayedStrategy
+	21, // 2: notification.v1.SendStrategy.scheduled:type_name -> notification.v1.SendStrategy.ScheduledStrategy
+	22, // 3: notification.v1.SendStrategy.time_window:type_name -> notification.v1.SendStrategy.TimeWindowStrategy
+	23, // 4: notification.v1.SendStrategy.deadline:type_name -> notification.v1.SendStrategy.DeadlineStrategy
 	0,  // 5: notification.v1.Notification.channel:type_name -> notification.v1.Channel
-	23, // 6: notification.v1.Notification.template_params:type_name -> notification.v1.Notification.TemplateParamsEntry
-	2,  // 7: notification.v1.Notification.send_strategy:type_name -> notification.v1.SendStrategy
-	3,  // 8: notification.v1.SendNotificationRequest.notification:type_name -> notification.v1.Notification
-	1,  // 9: notification.v1.SendNotificationResponse.error_code:type_name -> notification.v1.ErrorCode
-	3,  // 10: notification.v1.SendNotificationAsyncRequest.notification:type_name -> notification.v1.Notification
-	1,  // 11: notification.v1.SendNotificationAsyncResponse.error_code:type_name -> notification.v1.ErrorCode
-	3,  // 12: notification.v1.SendNotificationBatchRequest.notifications:type_name -> notification.v1.Notification
-	5,  // 13: notification.v1.SendNotificationBatchResponse.responses:type_name -> notification.v1.SendNotificationResponse
-	3,  // 14: notification.v1.SendNotificationBatchAsyncRequest.notifications:type_name -> notification.v1.Notification
-	3,  // 15: notification.v1.PrepareTxRequest.notification:type_name -> notification.v1.Notification
-	24, // 16: notification.v1.SendStrategy.ScheduledStrategy.send_time:type_name -> google.protobuf.Timestamp
-	24, // 17: notification.v1.SendStrategy.DeadlineStrategy.deadline:type_name -> google.protobuf.Timestamp
-	4,  // 18: notification.v1.NotificationService.SendNotification:input_type -> notification.v1.SendNotificationRequest
-	6,  // 19: notification.v1.NotificationService.SendNotificationAsync:input_type -> notification.v1.SendNotificationAsyncRequest
-	8,  // 20: notification.v1.NotificationService.SendNotificationBatch:input_type -> notification.v1.SendNotificationBatchRequest
-	10, // 21: notification.v1.NotificationService.SendNotificationBatchAsync:input_type -> notification.v1.SendNotificationBatchAsyncRequest
-	12, // 22: notification.v1.NotificationService.PrepareTx:input_type -> notification.v1.PrepareTxRequest
-	14, // 23: notification.v1.NotificationService.CommitTx:input_type -> notification.v1.CommitTxRequest
-	16, // 24: notification.v1.NotificationService.CancelTx:input_type -> notification.v1.CancelTxRequest
-	5,  // 25: notification.v1.NotificationService.SendNotification:output_type -> notification.v1.SendNotificationResponse
-	7,  // 26: notification.v1.NotificationService.SendNotificationAsync:output_type -> notification.v1.SendNotificationAsyncResponse
-	9,  // 27: notification.v1.NotificationService.SendNotificationBatch:output_type -> notification.v1.SendNotificationBatchResponse
-	11, // 28: notification.v1.NotificationService.SendNotificationBatchAsync:output_type -> notification.v1.SendNotificationBatchAsyncResponse
-	13, // 29: notification.v1.NotificationService.PrepareTx:output_type -> notification.v1.PrepareTxResponse
-	15, // 30: notification.v1.NotificationService.CommitTx:output_type -> notification.v1.CommitTxResponse
-	17, // 31: notification.v1.NotificationService.CancelTx:output_type -> notification.v1.CancelTxResponse
-	25, // [25:32] is the sub-list for method output_type
-	18, // [18:25] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	24, // 6: notification.v1.Notification.template_params:type_name -> notification.v1.Notification.TemplateParamsEntry
+	3,  // 7: notification.v1.Notification.send_strategy:type_name -> notification.v1.SendStrategy
+	4,  // 8: notification.v1.SendNotificationRequest.notification:type_name -> notification.v1.Notification
+	1,  // 9: notification.v1.SendNotificationResponse.status:type_name -> notification.v1.SendStatus
+	2,  // 10: notification.v1.SendNotificationResponse.error_code:type_name -> notification.v1.ErrorCode
+	4,  // 11: notification.v1.SendNotificationAsyncRequest.notification:type_name -> notification.v1.Notification
+	2,  // 12: notification.v1.SendNotificationAsyncResponse.error_code:type_name -> notification.v1.ErrorCode
+	4,  // 13: notification.v1.SendNotificationBatchRequest.notifications:type_name -> notification.v1.Notification
+	6,  // 14: notification.v1.SendNotificationBatchResponse.results:type_name -> notification.v1.SendNotificationResponse
+	4,  // 15: notification.v1.SendNotificationBatchAsyncRequest.notifications:type_name -> notification.v1.Notification
+	4,  // 16: notification.v1.PrepareTxRequest.notification:type_name -> notification.v1.Notification
+	25, // 17: notification.v1.SendStrategy.ScheduledStrategy.send_time:type_name -> google.protobuf.Timestamp
+	25, // 18: notification.v1.SendStrategy.DeadlineStrategy.deadline:type_name -> google.protobuf.Timestamp
+	5,  // 19: notification.v1.NotificationService.SendNotification:input_type -> notification.v1.SendNotificationRequest
+	7,  // 20: notification.v1.NotificationService.SendNotificationAsync:input_type -> notification.v1.SendNotificationAsyncRequest
+	9,  // 21: notification.v1.NotificationService.SendNotificationBatch:input_type -> notification.v1.SendNotificationBatchRequest
+	11, // 22: notification.v1.NotificationService.SendNotificationBatchAsync:input_type -> notification.v1.SendNotificationBatchAsyncRequest
+	13, // 23: notification.v1.NotificationService.PrepareTx:input_type -> notification.v1.PrepareTxRequest
+	15, // 24: notification.v1.NotificationService.CommitTx:input_type -> notification.v1.CommitTxRequest
+	17, // 25: notification.v1.NotificationService.CancelTx:input_type -> notification.v1.CancelTxRequest
+	6,  // 26: notification.v1.NotificationService.SendNotification:output_type -> notification.v1.SendNotificationResponse
+	8,  // 27: notification.v1.NotificationService.SendNotificationAsync:output_type -> notification.v1.SendNotificationAsyncResponse
+	10, // 28: notification.v1.NotificationService.SendNotificationBatch:output_type -> notification.v1.SendNotificationBatchResponse
+	12, // 29: notification.v1.NotificationService.SendNotificationBatchAsync:output_type -> notification.v1.SendNotificationBatchAsyncResponse
+	14, // 30: notification.v1.NotificationService.PrepareTx:output_type -> notification.v1.PrepareTxResponse
+	16, // 31: notification.v1.NotificationService.CommitTx:output_type -> notification.v1.CommitTxResponse
+	18, // 32: notification.v1.NotificationService.CancelTx:output_type -> notification.v1.CancelTxResponse
+	26, // [26:33] is the sub-list for method output_type
+	19, // [19:26] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_notification_v1_notification_proto_init() }
@@ -1514,7 +1600,7 @@ func file_api_proto_notification_v1_notification_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_notification_v1_notification_proto_rawDesc), len(file_api_proto_notification_v1_notification_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,

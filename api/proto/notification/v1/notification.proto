@@ -19,6 +19,22 @@ enum Channel {
 }
 
 // 通知发送状态枚举
+enum SendStatus {
+  // 未指定消息通知发送状态
+  SEND_STATUS_UNSPECIFIED = 0;
+  // 事物消息，准备阶段
+  PEWPARE = 1;
+  // 事务消息，取消发送
+  CANCELED = 2;
+  // 等待发送，普通消息的默认状态，事物消息的确认发送状态（二者重合故用一个状态表示）
+  PENDING = 3;
+  // 发送成功
+  SUCCEEDED = 4;
+  // 发送失败
+  FAILED = 5;
+}
+
+// 错误代码枚举
 enum ErrorCode {
   // 未指定错误码
   ERROR_CODE_UNSPECIFIED = 0;
@@ -146,10 +162,12 @@ message SendNotificationRequest {
 message SendNotificationResponse {
   // 通知平台生产的通知ID
   uint64 notification_id = 1;
+  // 发送状态
+  SendStatus status = 2;
   // 发送时的错误代码
-  ErrorCode error_code = 2;
+  ErrorCode error_code = 3;
   // 错误信息
-  string error_message = 3;
+  string error_message = 4;
 }
 
 // 异步单条通知发送请求
@@ -175,7 +193,7 @@ message SendNotificationBatchRequest {
 // 同步批量发送通知响应
 message SendNotificationBatchResponse {
   // 所有结果
-  repeated SendNotificationResponse responses = 1;
+  repeated SendNotificationResponse results = 1;
   // 总数
   int32 total_count = 2;
   // 成功数
