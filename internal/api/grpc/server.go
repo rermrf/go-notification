@@ -3,11 +3,21 @@ package grpc
 import (
 	"context"
 	notificationv1 "go-notification/api/proto/gen/api/proto/notification/v1"
+	notificationSvc "go-notification/internal/service/notification"
 )
 
+const (
+	batchSizeLimit = 100
+)
+
+// NotificationServer 通知平台gRPC服务器处理gRPC请求
 type NotificationServer struct {
 	notificationv1.UnimplementedNotificationServiceServer
 	notificationv1.UnimplementedNotificationQueryServiceServer
+
+	notificationSvc notificationSvc.Service
+	sendScc         notificationSvc.SendService
+	txnSvc notificationSvc.
 }
 
 func (n NotificationServer) SendNotification(ctx context.Context, request *notificationv1.SendNotificationRequest) (*notificationv1.SendNotificationResponse, error) {

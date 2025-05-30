@@ -34,3 +34,10 @@ func Error(err error) Field {
 		Value: err,
 	}
 }
+
+func Any(key string, val any) Field {
+	return Field{
+		Key:   key,
+		Value: val,
+	}
+}
