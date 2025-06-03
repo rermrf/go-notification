@@ -35,7 +35,7 @@ func (s SendStatus) String() string {
 }
 
 type Notification struct {
-	ID                 string             `json:"id"`             // 通知唯一标识
+	ID                 int64              `json:"id"`             // 通知唯一标识
 	BizID              int64              `json:"bizId"`          // 业务唯一标识
 	Key                string             `json:"key"`            // 业务内唯一标识
 	Receivers          []string           `json:"receivers"`      // 接收者(手机/邮箱/用户ID)

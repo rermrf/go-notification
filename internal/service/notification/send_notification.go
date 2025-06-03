@@ -3,9 +3,10 @@ package notification
 import (
 	"context"
 	"go-notification/internal/domain"
+	"go-notification/internal/service/template/manage"
 )
 
-// SendService 复杂处理发送
+// SendService 负责处理发送
 //
 //go:generate mockgen -source=./send_notification.go -destination=./mocks/send_notification.mock.go -package=notificationmocks -typed SendService
 type SendService interface {
@@ -20,4 +21,8 @@ type SendService interface {
 }
 
 type sendService struct {
+	notificationSvc Service
+	templateSvc     manage.ChannelTemplateService
+	idGenerator     *idgen.Generator
+	sendStrategy    sendstrategy.SendStrategy
 }
