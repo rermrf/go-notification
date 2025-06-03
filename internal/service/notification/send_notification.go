@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"go-notification/internal/domain"
+	"go-notification/internal/pkg/id_generator"
 	"go-notification/internal/service/template/manage"
 )
 
@@ -23,6 +24,6 @@ type SendService interface {
 type sendService struct {
 	notificationSvc Service
 	templateSvc     manage.ChannelTemplateService
-	idGenerator     *idgen.Generator
+	idGenerator     *id_generator.Generator
 	sendStrategy    sendstrategy.SendStrategy
 }
