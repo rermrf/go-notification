@@ -23,7 +23,7 @@ enum SendStatus {
   // 未指定消息通知发送状态
   SEND_STATUS_UNSPECIFIED = 0;
   // 事物消息，准备阶段
-  PEWPARE = 1;
+  PREPARE = 1;
   // 事务消息，取消发送
   CANCELED = 2;
   // 等待发送，普通消息的默认状态，事物消息的确认发送状态（二者重合故用一个状态表示）

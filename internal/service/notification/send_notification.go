@@ -18,3 +18,6 @@ type SendService interface {
 	// BatchSendNotificationsAsync 异步批量发送
 	BatchSendNotificationsAsync(ctx context.Context, ns []domain.Notification) (domain.SendResponse, error)
 }
+
+type sendService struct {
+}

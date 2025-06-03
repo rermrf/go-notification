@@ -56,7 +56,7 @@ func (o OwnerType) String() string {
 	return string(o)
 }
 
-func (o OwnerType) IsVaild() bool {
+func (o OwnerType) IsValid() bool {
 	return o == OwnertypePerson || o == OwnertypeOrganization
 }
 

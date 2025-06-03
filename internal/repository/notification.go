@@ -3,6 +3,9 @@ package repository
 import (
 	"context"
 	"go-notification/internal/domain"
+	"go-notification/internal/pkg/logger"
+	"go-notification/internal/repository/cache"
+	"go-notification/internal/repository/dao"
 )
 
 type NotificationRepository interface {
@@ -15,12 +18,12 @@ type NotificationRepository interface {
 	BatchGetByID(ctx context.Context, ids []int64) (map[int64]domain.Notification, error)
 
 	GetByKey(ctx context.Context, bizID int64, key string) (domain.Notification, error)
-	GetByKeys(ctx context.Context, keys []string) (map[int64]domain.Notification, error)
+	GetByKeys(ctx context.Context, bizId int64, keys ...string) ([]domain.Notification, error)
 
 	CASStatus(ctx context.Context, notification domain.Notification) error
 	UpdateStatus(ctx context.Context, notification domain.Notification) error
 
-	BatchUpdateStatusSucceededOrFailed(ctx context.Context, succededNotifications, failedNotifications []domain.Notification) error
+	BatchUpdateStatusSucceededOrFailed(ctx context.Context, succeededNotifications, failedNotifications []domain.Notification) error
 
 	FindReadNotifications(ctx context.Context, offset, limit int) ([]domain.Notification, error)
 	MarkSuccess(ctx context.Context, notification domain.Notification) error
@@ -28,7 +31,18 @@ type NotificationRepository interface {
 	MarkTimeoutSendingAsFailed(ctx context.Context, batchSize int) (int64, error)
 }
 
+const (
+	defaultQuotaNumber int32 = 1
+)
+
 type notificationRepository struct {
+	dao        dao.NotificationDAO
+	quotaCache cache.QuotaCache
+	logger     logger.Logger
+}
+
+func newNotificationRepository(dao dao.NotificationDAO, quotaCache cache.QuotaCache, logger logger.Logger) NotificationRepository {
+	return &notificationRepository{dao: dao, quotaCache: quotaCache, logger: logger}
 }
 
 func (n notificationRepository) Create(ctx context.Context, notification domain.Notification) (domain.Notification, error) {

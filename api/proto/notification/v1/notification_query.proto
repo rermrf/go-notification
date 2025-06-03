@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package notification.v1;
 
-import "api/proto/notification/v1/notification.proto";
+import "notification/v1/notification.proto";
 
 option go_package = "go-notification/api/gen/v1;notificationpb";
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 package client.v1;
 
 // 引入Notification定义
-import "api/proto/notification/v1/notification.proto";
+import "notification/v1/notification.proto";
 
 option go_package="go-notification/api/gen/client/v1;clientv1";
 
