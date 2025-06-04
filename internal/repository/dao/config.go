@@ -1,9 +1,12 @@
 package dao
 
 import (
-	"github.com/google/uuid"
+	"context"
 	"go-notification/internal/domain"
 	"go-notification/internal/pkg/sqlx"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"time"
 )
 
 type BusinessConfig struct {
@@ -21,4 +24,87 @@ type BusinessConfig struct {
 
 func (BusinessConfig) TableName() string {
 	return "business_configs"
+}
+
+type BusinessConfigDAO interface {
+	GetByIDs(ctx context.Context, ids []int64) (map[int64]BusinessConfig, error)
+	GetByID(ctx context.Context, id int64) (BusinessConfig, error)
+	DeleteByID(ctx context.Context, id int64) error
+	SaveConfig(ctx context.Context, config BusinessConfig) (BusinessConfig, error)
+	Find(ctx context.Context, offset, limit int) ([]BusinessConfig, error)
+}
+
+type businessConfigDAO struct {
+	db *gorm.DB
+}
+
+func NewBusinessConfigDAO(db *gorm.DB) BusinessConfigDAO {
+	return &businessConfigDAO{db: db}
+}
+
+// GetByIDs 批量获取config
+func (b businessConfigDAO) GetByIDs(ctx context.Context, ids []int64) (map[int64]BusinessConfig, error) {
+	var businessConfigs []BusinessConfig
+	if err := b.db.WithContext(ctx).Where("id in (?)", ids).Find(&businessConfigs).Error; err != nil {
+		return nil, err
+	}
+	configMap := make(map[int64]BusinessConfig, len(ids))
+	for idx := range businessConfigs {
+		config := businessConfigs[idx]
+		configMap[config.ID] = config
+	}
+	return configMap, nil
+}
+
+// GetByID 通过id查询config
+func (b businessConfigDAO) GetByID(ctx context.Context, id int64) (BusinessConfig, error) {
+	var config BusinessConfig
+
+	// 根据ID查询业务配置
+	if err := b.db.WithContext(ctx).Where("id = ?", id).First(&config).Error; err != nil {
+		return BusinessConfig{}, err
+	}
+	return config, nil
+}
+
+// DeleteByID 根据ID删除config
+func (b businessConfigDAO) DeleteByID(ctx context.Context, id int64) error {
+	// 执行删除操作
+	err := b.db.WithContext(ctx).Where("id = ?", id).Delete(&BusinessConfig{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SaveConfig 保存业务配置
+func (b businessConfigDAO) SaveConfig(ctx context.Context, config BusinessConfig) (BusinessConfig, error) {
+	now := time.Now().UnixMilli()
+	config.Ctime = now
+	config.Utime = now
+	// 使用 upsert 语句，如果记录存在则更新，不存在则插入
+	db := b.db.WithContext(ctx)
+	res := db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "id"}}, // 根据ID判断冲突
+		DoUpdates: clause.AssignmentColumns([]string{
+			"owner_id",
+			"owner_type",
+			"channel_config",
+			"txn_config",
+			"rate_limit",
+			"quota",
+			"callback_config",
+			"utime",
+		}), // 只更新制定的非空列
+	}).Create(&config)
+	if res.Error != nil {
+		return BusinessConfig{}, res.Error
+	}
+	return config, nil
+}
+
+func (b businessConfigDAO) Find(ctx context.Context, offset, limit int) ([]BusinessConfig, error) {
+	var result []BusinessConfig
+	err := b.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&result).Error
+	return result, err
 }
