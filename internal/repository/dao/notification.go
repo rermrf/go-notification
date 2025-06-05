@@ -213,7 +213,7 @@ func (d *notificationDAO) MarkSuccess(ctx context.Context, notification Notifica
 		}
 		return tx.Model(&CallbackLog{}).Where("notification_id = ?", notification.ID).Updates(map[string]interface{}{
 			// 标记为可以发送回调
-			"status": domain.CallbackStatusPending,
+			"status": domain.CallbackLogStatusPending,
 			"utime":  now,
 		}).Error
 	})
@@ -259,7 +259,7 @@ func (d *notificationDAO) MarkTimeoutSendingAsFailed(ctx context.Context, batchS
 		res := tx.Model(&CallbackLog{}).
 			Where("id IN (?)", idsToUpdate).
 			Updates(map[string]interface{}{
-				"status":  domain.CallbackStatusFailed.String(),
+				"status":  domain.CallbackLogStatusFailed.String(),
 				"version": gorm.Expr("version + 1"),
 				"utime":   now.UnixMilli(),
 			})
@@ -299,7 +299,7 @@ func (d *notificationDAO) create(ctx context.Context, db *gorm.DB, data Notifica
 		if createCallbackLog {
 			if err := tx.Create(&CallbackLog{
 				NotificationID: data.ID,
-				Status:         domain.CallbackStatusInit.String(),
+				Status:         domain.CallbackLogStatusInit.String(),
 				NextRetryTime:  now,
 			}).Error; err != nil {
 				return fmt.Errorf("%w", errs.ErrCreateCallbackLogFailed)
@@ -372,7 +372,7 @@ func (d *notificationDAO) batchMarkSuccess(tx *gorm.DB, successIDs []int64) erro
 	return tx.Model(&Notification{}).
 		Where("notification_id in (?)", successIDs).
 		Updates(map[string]interface{}{
-			"status": domain.CallbackStatusPending.String(),
+			"status": domain.CallbackLogStatusPending.String(),
 			"utime":  now,
 		}).Error
 }

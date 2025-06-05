@@ -3,10 +3,10 @@ package domain
 type CallbackLogStatus string
 
 const (
-	CallbackStatusInit    CallbackLogStatus = "INIT"      // 初始化
-	CallbackStatusPending CallbackLogStatus = "PENDING"   // 待处理
-	CallbackStatusSuccess CallbackLogStatus = "SUCCEEDED" // 成功
-	CallbackStatusFailed  CallbackLogStatus = "FAILED"    // 失败
+	CallbackLogStatusInit    CallbackLogStatus = "INIT"      // 初始化
+	CallbackLogStatusPending CallbackLogStatus = "PENDING"   // 待处理
+	CallbackLogStatusSuccess CallbackLogStatus = "SUCCEEDED" // 成功
+	CallbackLogStatusFailed  CallbackLogStatus = "FAILED"    // 失败
 )
 
 func (cs CallbackLogStatus) String() string {
