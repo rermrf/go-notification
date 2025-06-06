@@ -10,7 +10,6 @@ import (
 	"go-notification/internal/service/channel"
 	configSvc "go-notification/internal/service/config"
 	"go-notification/internal/service/notification/callback"
-	"log"
 	"sync"
 )
 

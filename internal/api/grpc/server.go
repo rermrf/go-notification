@@ -71,23 +71,183 @@ func (n NotificationServer) SendNotification(ctx context.Context, request *notif
 }
 
 func (n NotificationServer) SendNotificationAsync(ctx context.Context, request *notificationv1.SendNotificationAsyncRequest) (*notificationv1.SendNotificationAsyncResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	response := &notificationv1.SendNotificationAsyncResponse{}
+
+	// 从metadata中解析Authorization JWT Token
+	bizID, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 构建领域对象
+	notification, err := n.buildNotification(ctx, request.Notification, bizID)
+	if err != nil {
+		response.ErrorCode = notificationv1.ErrorCode_INVALID_PARAMETER
+		response.ErrorMessage = err.Error()
+		return response, nil
+	}
+
+	// 执行发送
+	result, err := n.sendSvc.SendNotificationAsync(ctx, notification)
+	if err != nil {
+		// 区分系统错误和业务错误
+		if n.isSystemError(err) {
+			// 系统错误通过gRPC错误返回
+			return nil, status.Errorf(codes.Internal, "%v", err)
+		} else {
+			// 业务错误通过ErrorCode返回
+			response.ErrorCode = n.convertToGRPCErrorCode(err)
+			response.ErrorMessage = err.Error()
+			return response, nil
+		}
+	}
+
+	// 将结果转为响应
+	response.NotificationId = uint64(result.NotificationID)
+	return response, nil
 }
 
+// SendNotificationBatch 处理批量同步发送通知请求
 func (n NotificationServer) SendNotificationBatch(ctx context.Context, request *notificationv1.SendNotificationBatchRequest) (*notificationv1.SendNotificationBatchResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 从metadata中解析Authorization JWT Token
+	bizID, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 处理空请求或者通知列表
+	if request == nil || len(request.GetNotifications()) == 0 {
+		return &notificationv1.SendNotificationBatchResponse{
+			TotalCount:   0,
+			SuccessCount: 0,
+			Results:      []*notificationv1.SendNotificationResponse{},
+		}, nil
+	}
+
+	if len(request.GetNotifications()) > batchSizeLimit {
+		return nil, status.Errorf(codes.InvalidArgument, "%v: %d > %d", errs.ErrBatchSizeOverLimit, len(request.GetNotifications()), batchSizeLimit)
+	}
+
+	var hasError bool
+	results := make([]*notificationv1.SendNotificationResponse, len(request.GetNotifications()))
+	// 构建领域对象
+	notifications := make([]domain.Notification, 0, len(request.GetNotifications()))
+	for i := range request.GetNotifications() {
+		notification, err := n.buildNotification(ctx, request.Notifications[i], bizID)
+		if err != nil {
+			results[i] = &notificationv1.SendNotificationResponse{
+				ErrorCode:    notificationv1.ErrorCode_INVALID_PARAMETER,
+				ErrorMessage: err.Error(),
+				Status:       notificationv1.SendStatus_FAILED,
+			}
+			hasError = true
+			continue
+		}
+		notifications = append(notifications, notification)
+	}
+	if hasError {
+		return &notificationv1.SendNotificationBatchResponse{
+			TotalCount:   int32(len(results)),
+			SuccessCount: int32(0),
+			Results:      results,
+		}, nil
+	}
+
+	// 执行发送
+	responses, err := n.sendSvc.BatchSendNotifications(ctx, notifications)
+	if err != nil {
+		if n.isSystemError(err) {
+			return nil, status.Errorf(codes.Internal, "%v", err)
+		} else {
+			for i := range results {
+				results[i] = &notificationv1.SendNotificationResponse{
+					ErrorCode:    n.convertToGRPCErrorCode(err),
+					ErrorMessage: err.Error(),
+					Status:       notificationv1.SendStatus_FAILED,
+				}
+			}
+			return &notificationv1.SendNotificationBatchResponse{
+				TotalCount:   int32(len(results)),
+				SuccessCount: int32(0),
+				Results:      results,
+			}, nil
+		}
+	}
+
+	// 将结果转为响应
+	successCount := int32(0)
+	for i := range responses.Results {
+		results[i] = n.buildGRPCSendResponse(responses.Results[i], nil)
+		if notifications[0].SendStrategyConfig.Type == domain.SendStrategyImmediate && domain.SendStatusSending == responses.Results[i].Status {
+			successCount++
+		}
+		if notifications[0].SendStrategyConfig.Type != domain.SendStrategyImmediate && responses.Results[i].Status == domain.SendStatusSending {
+			successCount++
+		}
+	}
+	return &notificationv1.SendNotificationBatchResponse{
+		TotalCount:   int32(len(results)),
+		SuccessCount: successCount,
+		Results:      results,
+	}, nil
 }
 
+// SendNotificationBatchAsync 处理批量异步发送
 func (n NotificationServer) SendNotificationBatchAsync(ctx context.Context, request *notificationv1.SendNotificationBatchAsyncRequest) (*notificationv1.SendNotificationBatchAsyncResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 从metadata中解析Authorization JWT Token
+	bizID, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 处理空请求或者通知列表
+	if request == nil || len(request.GetNotifications()) == 0 {
+		return &notificationv1.SendNotificationBatchAsyncResponse{
+			NotificationIds: []uint64{},
+		}, nil
+	}
+
+	if len(request.GetNotifications()) > batchSizeLimit {
+		return nil, status.Errorf(codes.InvalidArgument, "%v: %d > %d", errs.ErrBatchSizeOverLimit, len(request.GetNotifications()), batchSizeLimit)
+	}
+
+	// 构建领域对象
+	notifications := make([]domain.Notification, 0, len(request.GetNotifications()))
+	for i := range request.GetNotifications() {
+		notification, err := n.buildNotification(ctx, request.Notifications[i], bizID)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "%v: %#v", err, request.Notifications[i])
+		}
+		notifications = append(notifications, notification)
+	}
+
+	// 执行发送
+	result, err := n.sendSvc.BatchSendNotificationsAsync(ctx, notifications)
+	if err != nil {
+		if n.isSystemError(err) {
+			return nil, status.Errorf(codes.Internal, "%v", err)
+		} else {
+			return nil, status.Errorf(codes.InvalidArgument, "批量异步发送失败：%v", err)
+		}
+	}
+
+	// 将结果转换为响应
+	return &notificationv1.SendNotificationBatchAsyncResponse{
+		NotificationIds: result.NotificationIDs,
+	}, nil
 }
 
+// PrepareTx 处理事务通知准备请求
 func (n NotificationServer) PrepareTx(ctx context.Context, request *notificationv1.PrepareTxRequest) (*notificationv1.PrepareTxResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 从metadata中解析Authorization JWT Token
+	bizID, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 构建领域对象
+	txn, err := n.buildNotification(ctx, request.Notification, bizID)
+	
 }
 
 func (n NotificationServer) CommitTx(ctx context.Context, request *notificationv1.CommitTxRequest) (*notificationv1.CommitTxResponse, error) {
@@ -209,4 +369,23 @@ func (n NotificationServer) covertToGRPCSendStatus(status domain.SendStatus) not
 	default:
 		return notificationv1.SendStatus_SEND_STATUS_UNSPECIFIED
 	}
+}
+
+// buildGRPCSendResponse 将领域响应转换为gRPC响应
+func (n NotificationServer) buildGRPCSendResponse(res domain.SendResponse, err error) *notificationv1.SendNotificationResponse {
+	response := &notificationv1.SendNotificationResponse{
+		NotificationId: uint64(res.NotificationID),
+		Status:         n.covertToGRPCSendStatus(res.Status),
+	}
+	// 如果有错误，提取错误代码和消息
+	if err != nil {
+		response.ErrorCode = n.convertToGRPCErrorCode(err)
+		response.ErrorMessage = err.Error()
+
+		// 如果状态不是失败，但是有错误，更新状态为失败
+		if response.Status != notificationv1.SendStatus_FAILED {
+			response.Status = notificationv1.SendStatus_FAILED
+		}
+	}
+	return response
 }

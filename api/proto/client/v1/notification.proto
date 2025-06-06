@@ -5,7 +5,7 @@ package client.v1;
 // 引入Notification定义
 import "notification/v1/notification.proto";
 
-option go_package="go-notification/api/gen/client/v1;clientv1";
+option go_package = "go-notification/api/gen/client/v1;clientv1";
 
 service CallbackService {
   // 业务方需要实现的回调接口

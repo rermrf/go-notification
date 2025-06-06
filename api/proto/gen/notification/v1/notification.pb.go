@@ -537,7 +537,7 @@ func (x *SendNotificationRequest) GetNotification() *Notification {
 type SendNotificationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 通知平台生产的通知ID
-	NotificationId uint64 `protobuf:"varint,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	NotificationId int64 `protobuf:"varint,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
 	// 发送状态
 	Status SendStatus `protobuf:"varint,2,opt,name=status,proto3,enum=notification.v1.SendStatus" json:"status,omitempty"`
 	// 发送时的错误代码
@@ -578,7 +578,7 @@ func (*SendNotificationResponse) Descriptor() ([]byte, []int) {
 	return file_notification_v1_notification_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *SendNotificationResponse) GetNotificationId() uint64 {
+func (x *SendNotificationResponse) GetNotificationId() int64 {
 	if x != nil {
 		return x.NotificationId
 	}
@@ -655,7 +655,7 @@ func (x *SendNotificationAsyncRequest) GetNotification() *Notification {
 type SendNotificationAsyncResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 通知平台生产的通知ID
-	NotificationId uint64 `protobuf:"varint,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	NotificationId int64 `protobuf:"varint,1,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
 	// 发送时的错误代码
 	ErrorCode ErrorCode `protobuf:"varint,2,opt,name=error_code,json=errorCode,proto3,enum=notification.v1.ErrorCode" json:"error_code,omitempty"`
 	// 错误信息
@@ -694,7 +694,7 @@ func (*SendNotificationAsyncResponse) Descriptor() ([]byte, []int) {
 	return file_notification_v1_notification_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *SendNotificationAsyncResponse) GetNotificationId() uint64 {
+func (x *SendNotificationAsyncResponse) GetNotificationId() int64 {
 	if x != nil {
 		return x.NotificationId
 	}
@@ -872,7 +872,7 @@ func (x *SendNotificationBatchAsyncRequest) GetNotifications() []*Notification {
 // 异步批量发送通知响应
 type SendNotificationBatchAsyncResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	NotificationIds []uint64               `protobuf:"varint,1,rep,packed,name=notification_ids,json=notificationIds,proto3" json:"notification_ids,omitempty"`
+	NotificationIds []int64                `protobuf:"varint,1,rep,packed,name=notification_ids,json=notificationIds,proto3" json:"notification_ids,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -907,7 +907,7 @@ func (*SendNotificationBatchAsyncResponse) Descriptor() ([]byte, []int) {
 	return file_notification_v1_notification_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *SendNotificationBatchAsyncResponse) GetNotificationIds() []uint64 {
+func (x *SendNotificationBatchAsyncResponse) GetNotificationIds() []int64 {
 	if x != nil {
 		return x.NotificationIds
 	}
@@ -1424,7 +1424,7 @@ const file_notification_v1_notification_proto_rawDesc = "" +
 	"\x17SendNotificationRequest\x12A\n" +
 	"\fnotification\x18\x01 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\xd8\x01\n" +
 	"\x18SendNotificationResponse\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\x04R\x0enotificationId\x123\n" +
+	"\x0fnotification_id\x18\x01 \x01(\x03R\x0enotificationId\x123\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x1b.notification.v1.SendStatusR\x06status\x129\n" +
 	"\n" +
 	"error_code\x18\x03 \x01(\x0e2\x1a.notification.v1.ErrorCodeR\terrorCode\x12#\n" +
@@ -1432,7 +1432,7 @@ const file_notification_v1_notification_proto_rawDesc = "" +
 	"\x1cSendNotificationAsyncRequest\x12A\n" +
 	"\fnotification\x18\x01 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\xa8\x01\n" +
 	"\x1dSendNotificationAsyncResponse\x12'\n" +
-	"\x0fnotification_id\x18\x01 \x01(\x04R\x0enotificationId\x129\n" +
+	"\x0fnotification_id\x18\x01 \x01(\x03R\x0enotificationId\x129\n" +
 	"\n" +
 	"error_code\x18\x02 \x01(\x0e2\x1a.notification.v1.ErrorCodeR\terrorCode\x12#\n" +
 	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"c\n" +
@@ -1446,7 +1446,7 @@ const file_notification_v1_notification_proto_rawDesc = "" +
 	"!SendNotificationBatchAsyncRequest\x12C\n" +
 	"\rnotifications\x18\x01 \x03(\v2\x1d.notification.v1.NotificationR\rnotifications\"O\n" +
 	"\"SendNotificationBatchAsyncResponse\x12)\n" +
-	"\x10notification_ids\x18\x01 \x03(\x04R\x0fnotificationIds\"U\n" +
+	"\x10notification_ids\x18\x01 \x03(\x03R\x0fnotificationIds\"U\n" +
 	"\x10PrepareTxRequest\x12A\n" +
 	"\fnotification\x18\x02 \x01(\v2\x1d.notification.v1.NotificationR\fnotification\"\x13\n" +
 	"\x11PrepareTxResponse\"#\n" +
