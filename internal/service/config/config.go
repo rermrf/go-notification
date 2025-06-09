@@ -10,7 +10,7 @@ import (
 var ErrIDNotSet = errors.New("业务id没有设置")
 
 type BusinessConfigService interface {
-	GetByIDs(ctx context.Context, ids []string) (map[int64]domain.BusinessConfig, error)
+	GetByIDs(ctx context.Context, ids []int64) (map[int64]domain.BusinessConfig, error)
 	GetByID(ctx context.Context, id int64) (domain.BusinessConfig, error)
 	DeleteByID(ctx context.Context, id int64) error
 	// SaveConfig 保存非零字段

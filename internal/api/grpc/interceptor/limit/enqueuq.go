@@ -2,7 +2,7 @@ package limit
 
 import (
 	"context"
-	configv1 "go-notification/api/proto/gen/api/proto/config/v1"
+	configv1 "go-notification/api/proto/gen/config/v1"
 )
 
 type ConfigServer struct {
