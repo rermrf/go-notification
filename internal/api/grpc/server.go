@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	notificationv1 "go-notification/api/proto/gen/api/proto/notification/v1"
+	notificationv1 "go-notification/api/proto/gen/notification/v1"
 	"go-notification/internal/api/grpc/interceptor/jwt"
 	"go-notification/internal/domain"
 	"go-notification/internal/errs"
@@ -65,7 +65,7 @@ func (n NotificationServer) SendNotification(ctx context.Context, request *notif
 		}
 	}
 
-	response.NotificationId = uint64(result.NotificationID)
+	response.NotificationId = result.NotificationID
 	response.Status = n.covertToGRPCSendStatus(result.Status)
 	return response, nil
 }
@@ -103,7 +103,7 @@ func (n NotificationServer) SendNotificationAsync(ctx context.Context, request *
 	}
 
 	// 将结果转为响应
-	response.NotificationId = uint64(result.NotificationID)
+	response.NotificationId = result.NotificationID
 	return response, nil
 }
 
@@ -203,7 +203,7 @@ func (n NotificationServer) SendNotificationBatchAsync(ctx context.Context, requ
 	// 处理空请求或者通知列表
 	if request == nil || len(request.GetNotifications()) == 0 {
 		return &notificationv1.SendNotificationBatchAsyncResponse{
-			NotificationIds: []uint64{},
+			NotificationIds: []int64{},
 		}, nil
 	}
 
@@ -247,7 +247,12 @@ func (n NotificationServer) PrepareTx(ctx context.Context, request *notification
 
 	// 构建领域对象
 	txn, err := n.buildNotification(ctx, request.Notification, bizID)
-	
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "无效请求参数: %v", err)
+	}
+
+	// 执行操作
+	_, err = n.txnSvc
 }
 
 func (n NotificationServer) CommitTx(ctx context.Context, request *notificationv1.CommitTxRequest) (*notificationv1.CommitTxResponse, error) {
