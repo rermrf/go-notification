@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-notification/internal/domain"
 	log "go-notification/internal/pkg/logger"
+	"go-notification/internal/pkg/sqlx"
 	"go-notification/internal/repository/cache"
 	"go-notification/internal/repository/dao"
 	"time"
@@ -201,7 +202,22 @@ func (b *businessConfigRepository) DeleteByID(ctx context.Context, id int64) err
 }
 
 func (b *businessConfigRepository) SaveConfig(ctx context.Context, config domain.BusinessConfig) error {
-	cfg, err := b.dao.SaveConfig(ctx)
+	cfg, err := b.dao.SaveConfig(ctx, b.toEntity(config))
+	if err != nil {
+		return err
+	}
+	// 如果你要是监听配置中心，监听 MQ 之类的来同步本地缓存
+	// 别忘了更新配置中心/发消息到 MQ 上
+	err = b.redisCache.Set(ctx, b.toDomain(cfg))
+	if err != nil {
+		b.logger.Error("更新redis缓存失败", log.Error(err), log.Int64("bizID", config.ID))
+	}
+
+	err = b.localCache.Set(ctx, b.toDomain(cfg))
+	if err != nil {
+		b.logger.Error("更新本地缓存失败", log.Error(err), log.Int64("bizID", config.ID))
+	}
+	return nil
 }
 
 func (b *businessConfigRepository) Find(ctx context.Context, offset, limit int) ([]domain.BusinessConfig, error) {
@@ -254,4 +270,44 @@ func (b *businessConfigRepository) diffIDs(ids []int64, m map[int64]domain.Busin
 		}
 	}
 	return res
+}
+
+func (b *businessConfigRepository) toEntity(config domain.BusinessConfig) dao.BusinessConfig {
+	businessCfg := dao.BusinessConfig{
+		ID:        config.ID,
+		OwnerID:   config.OwnerId,
+		OwnerType: config.OwnerType,
+		RateLimit: config.RateLimit,
+		Ctime:     config.Ctime,
+		Utime:     config.Utime,
+	}
+
+	if config.ChannelConfig != nil {
+		businessCfg.ChannelConfig = sqlx.JsonColumn[domain.ChannelConfig]{
+			Val:   *config.ChannelConfig,
+			Valid: true,
+		}
+	}
+
+	if config.TxnConfig != nil {
+		businessCfg.TxnConfig = sqlx.JsonColumn[domain.TxnConfig]{
+			Val:   *config.TxnConfig,
+			Valid: true,
+		}
+	}
+
+	if config.Quota != nil {
+		businessCfg.Quota = sqlx.JsonColumn[domain.QuotaConfig]{
+			Val:   *config.Quota,
+			Valid: true,
+		}
+	}
+
+	if config.CallbackConfig != nil {
+		businessCfg.CallbackConfig = sqlx.JsonColumn[domain.CallbackConfig]{
+			Val:   *config.CallbackConfig,
+			Valid: true,
+		}
+	}
+	return businessCfg
 }

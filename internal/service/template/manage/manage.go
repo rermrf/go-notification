@@ -3,8 +3,12 @@ package manage
 import (
 	"context"
 	"go-notification/internal/domain"
+	"go-notification/internal/repository"
 )
 
+// ChannelTemplateService 提供模版管理的服务接口
+//
+//go:generate mockgen -source=./manage.go -destination=../mocks/manage.mock.go -package=templatemocks -typed ChannelTemplateService
 type ChannelTemplateService interface {
 	// GetTemplateByOwner 获取指定所有者的模板列表
 	GetTemplateByOwner(ctx context.Context, ownerID int64, ownerType domain.OwnerType) (domain.ChannelTemplate, error)
@@ -48,4 +52,8 @@ type ChannelTemplateService interface {
 
 	// BatchQueryAndUpdateProviderAuditInfo 批量查询并更新供应商审核信息
 	BatchQueryAndUpdateProviderAuditInfo(ctx context.Context, providers []domain.ChannelTemplateProvider) error
+}
+
+type templateService struct {
+	repo repository.ChannelTemplateRepository
 }

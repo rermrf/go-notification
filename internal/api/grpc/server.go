@@ -246,33 +246,113 @@ func (n NotificationServer) PrepareTx(ctx context.Context, request *notification
 	}
 
 	// 构建领域对象
-	txn, err := n.buildNotification(ctx, request.Notification, bizID)
+	txn, err := n.buildTxNotification(ctx, request.Notification, bizID)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "无效请求参数: %v", err)
 	}
 
 	// 执行操作
-	_, err = n.txnSvc
+	_, err = n.txnSvc.Prepare(ctx, txn.Notification)
+	return &notificationv1.PrepareTxResponse{}, err
 }
 
+// CommitTx 处理事务通知提交请求
 func (n NotificationServer) CommitTx(ctx context.Context, request *notificationv1.CommitTxRequest) (*notificationv1.CommitTxResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 从metadata中解析Authorization JWT token
+	bizId, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	err = n.txnSvc.Commit(ctx, bizId, request.GetKey())
+	return &notificationv1.CommitTxResponse{}, err
 }
 
+// CancelTx 处理事务通知取消请求
 func (n NotificationServer) CancelTx(ctx context.Context, request *notificationv1.CancelTxRequest) (*notificationv1.CancelTxResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 从metadata中解析Authorization JWT token
+	bizId, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	err = n.txnSvc.Cancel(ctx, bizId, request.GetKey())
+	return &notificationv1.CancelTxResponse{}, err
 }
 
+// QueryNotification 处理单条查询通知请求
 func (n NotificationServer) QueryNotification(ctx context.Context, request *notificationv1.QueryNotificationRequest) (*notificationv1.QueryNotificationResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	// 请求参数校验
+	if request == nil || request.Key == "" {
+		return nil, status.Error(codes.InvalidArgument, "请求参数无效：key不能为空")
+	}
+
+	// 从metadata中解析Authorization JWT token
+	bizId, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 查询通知
+	notifications, err := n.notificationSvc.GetByKeys(ctx, bizId, request.Key)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "查询通知失败：%v", err)
+	}
+
+	// 检查是否找到通知
+	if len(notifications) == 0 {
+		return &notificationv1.QueryNotificationResponse{
+			Result: &notificationv1.SendNotificationResponse{},
+		}, nil
+	}
+
+	// 将结果转换为相应
+	const zero = 0
+	return &notificationv1.QueryNotificationResponse{
+		Result: &notificationv1.SendNotificationResponse{
+			NotificationId: notifications[zero].ID,
+			Status:         n.covertToGRPCSendStatus(notifications[zero].Status),
+		},
+	}, nil
 }
 
+// BatchQueryNotifications 处理批量查询通知请求
 func (n NotificationServer) BatchQueryNotifications(ctx context.Context, request *notificationv1.BatchQueryNotificationsRequest) (*notificationv1.BatchQueryNotificationsResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	if request == nil {
+		return nil, status.Error(codes.InvalidArgument, "请求不能为空")
+	}
+
+	if len(request.Keys) == 0 {
+		return &notificationv1.BatchQueryNotificationsResponse{
+			Results: []*notificationv1.SendNotificationResponse{},
+		}, nil
+	}
+
+	if len(request.Keys) > batchSizeLimit {
+		return nil, status.Errorf(codes.InvalidArgument, "%v: %d > %d", errs.ErrBatchSizeOverLimit, len(request.Keys), batchSizeLimit)
+	}
+
+	// 从metadata中解析Authorization JWT token
+	bizId, err := jwt.GetBizIDFromContext(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	// 查询
+	notifications, err := n.notificationSvc.GetByKeys(ctx, bizId, request.Keys...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "批量查询失败：%v", err)
+	}
+
+	// 结果转换
+	resp := &notificationv1.BatchQueryNotificationsResponse{
+		Results: make([]*notificationv1.SendNotificationResponse, 0, len(notifications)),
+	}
+	for i := range notifications {
+		resp.Results = append(resp.Results, &notificationv1.SendNotificationResponse{
+			NotificationId: notifications[i].ID,
+			Status:         n.covertToGRPCSendStatus(notifications[i].Status),
+		})
+	}
+	return resp, nil
 }
 
 func (n NotificationServer) buildNotification(ctx context.Context, noti *notificationv1.Notification, bizID int64) (domain.Notification, error) {
@@ -379,7 +459,7 @@ func (n NotificationServer) covertToGRPCSendStatus(status domain.SendStatus) not
 // buildGRPCSendResponse 将领域响应转换为gRPC响应
 func (n NotificationServer) buildGRPCSendResponse(res domain.SendResponse, err error) *notificationv1.SendNotificationResponse {
 	response := &notificationv1.SendNotificationResponse{
-		NotificationId: uint64(res.NotificationID),
+		NotificationId: res.NotificationID,
 		Status:         n.covertToGRPCSendStatus(res.Status),
 	}
 	// 如果有错误，提取错误代码和消息
@@ -393,4 +473,23 @@ func (n NotificationServer) buildGRPCSendResponse(res domain.SendResponse, err e
 		}
 	}
 	return response
+}
+
+func (n NotificationServer) buildTxNotification(ctx context.Context, notification *notificationv1.Notification, bizID int64) (domain.TxNotification, error) {
+	if notification == nil {
+		return domain.TxNotification{}, errors.New("通知不能为空")
+	}
+
+	// 构建基本 Notification
+	noti, err := n.buildNotification(ctx, notification, bizID)
+	if err != nil {
+		return domain.TxNotification{}, err
+	}
+	noti.Status = domain.SendStatusPrepare
+	return domain.TxNotification{
+		BizID:        bizID,
+		Key:          notification.Key,
+		Notification: noti,
+		Status:       domain.TxNotificationStatusPrepare,
+	}, nil
 }
