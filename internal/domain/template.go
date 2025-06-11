@@ -205,6 +205,7 @@ type ChannelTemplateVersion struct {
 	Remark                   string      // 申请说明
 	AuditId                  int64       // 审核记录ID
 	AuditorId                int64       // 审核人ID
+	AuditTime                int64       // 审核时间
 	AuditStatus              AuditStatus // 审核状态
 	RejectReason             string      // 拒绝原因
 	LastReviewSubmissionTime int64       // 上次提交时间

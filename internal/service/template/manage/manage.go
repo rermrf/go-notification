@@ -55,5 +55,6 @@ type ChannelTemplateService interface {
 }
 
 type templateService struct {
-	repo repository.ChannelTemplateRepository
+	repo        repository.ChannelTemplateRepository
+	providerSvc providersvc.Service
 }
