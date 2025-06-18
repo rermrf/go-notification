@@ -29,7 +29,8 @@ type BitRing struct {
 
 // NewBitRing 创建一个新的BitRing
 // size: 滑动窗口大小
-// threshold: 事件
+// threshold: 事件发生率阈值(0.0-1.0)，超过此阈值将触发IsConditionMet返回true
+// consecutive： 连续出现多少次事件将触发IsCondition返沪true
 func NewBitRing(size int, threshold float64, consecutive int) *BitRing {
 	if size <= 0 {
 		size = defaultSize
@@ -76,6 +77,47 @@ func (br *BitRing) Add(eventHappened bool) {
 		br.pos = 0
 		br.filled = true
 	}
+}
+
+// IsConditionMet 判断是否满足触发条件
+// 当连续事件次数达到阈值或事件发生率超过阈值时返回true
+func (br *BitRing) IsConditionMet() bool {
+	br.mu.RLock()
+	defer br.mu.RUnlock()
+
+	window := br.windowSize()
+	if window == 0 {
+		return false
+	}
+
+	// 1. 连续发生事件 consecutive 次
+	if window >= br.consecutive {
+		allEvents := true
+		for i := 1; i <= br.consecutive; i++ {
+			pos := (br.pos - i + br.size) % br.size
+			if !br.bitAt(pos) {
+				allEvents = false
+				break
+			}
+		}
+		if allEvents {
+			return true
+		}
+	}
+
+	// 2. 时间发生率超过阈值
+	if float64(br.eventCount)/float64(window) > br.threshold {
+		return true
+	}
+	return false
+}
+
+// windowSize 返回当前有效的窗口大小
+func (br *BitRing) windowSize() int {
+	if br.filled {
+		return br.size
+	}
+	return br.pos
 }
 
 // bitAt 获取指定位置的bit值
