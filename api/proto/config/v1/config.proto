@@ -92,7 +92,7 @@ message DeleteResponse {
 }
 
 message SaveConfigRequest {
-  SaveConfigRequest config = 1;
+  BusinessConfig config = 1;
 }
 
 message SaveConfigResponse {

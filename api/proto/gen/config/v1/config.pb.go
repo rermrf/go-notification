@@ -768,7 +768,7 @@ func (x *DeleteResponse) GetSuccess() bool {
 
 type SaveConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Config        *SaveConfigRequest     `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
+	Config        *BusinessConfig        `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -803,7 +803,7 @@ func (*SaveConfigRequest) Descriptor() ([]byte, []int) {
 	return file_config_v1_config_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *SaveConfigRequest) GetConfig() *SaveConfigRequest {
+func (x *SaveConfigRequest) GetConfig() *BusinessConfig {
 	if x != nil {
 		return x.Config
 	}
@@ -908,9 +908,9 @@ const file_config_v1_config_proto_rawDesc = "" +
 	"\rDeleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"*\n" +
 	"\x0eDeleteResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"I\n" +
-	"\x11SaveConfigRequest\x124\n" +
-	"\x06config\x18\x01 \x01(\v2\x1c.config.v1.SaveConfigRequestR\x06config\".\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"F\n" +
+	"\x11SaveConfigRequest\x121\n" +
+	"\x06config\x18\x01 \x01(\v2\x19.config.v1.BusinessConfigR\x06config\".\n" +
 	"\x12SaveConfigResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess2\xb0\x02\n" +
 	"\x15BusinessConfigService\x12E\n" +
@@ -966,7 +966,7 @@ var file_config_v1_config_proto_depIdxs = []int32{
 	6,  // 8: config.v1.BusinessConfig.callback_config:type_name -> config.v1.CallbackConfig
 	16, // 9: config.v1.GetByIDsResponse.configs:type_name -> config.v1.GetByIDsResponse.ConfigsEntry
 	7,  // 10: config.v1.GetByIDResponse.config:type_name -> config.v1.BusinessConfig
-	14, // 11: config.v1.SaveConfigRequest.config:type_name -> config.v1.SaveConfigRequest
+	7,  // 11: config.v1.SaveConfigRequest.config:type_name -> config.v1.BusinessConfig
 	7,  // 12: config.v1.GetByIDsResponse.ConfigsEntry.value:type_name -> config.v1.BusinessConfig
 	8,  // 13: config.v1.BusinessConfigService.GetByIDs:input_type -> config.v1.GetByIDsRequest
 	10, // 14: config.v1.BusinessConfigService.GetByID:input_type -> config.v1.GetByIDRequest

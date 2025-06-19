@@ -10,8 +10,8 @@ import (
 type ChannelTemplateRepository interface {
 	// 模版相关方法
 
-	// GetTemplateByOwner 获取指定所有者的模板列表
-	GetTemplateByOwner(ctx context.Context, ownerID int64, ownerType domain.OwnerType) ([]domain.ChannelTemplate, error)
+	// GetTemplatesByOwner 获取指定所有者的模板列表
+	GetTemplatesByOwner(ctx context.Context, ownerID int64, ownerType domain.OwnerType) ([]domain.ChannelTemplate, error)
 
 	// GetTemplateByID 根据ID获取模版
 	GetTemplateByID(ctx context.Context, templateID int64) (domain.ChannelTemplate, error)
@@ -74,7 +74,7 @@ func NewChannelTemplateRepository(dao dao.ChannelTemplateDAO) ChannelTemplateRep
 	return &channelTemplateRepository{dao: dao}
 }
 
-func (r *channelTemplateRepository) GetTemplateByOwner(ctx context.Context, ownerID int64, ownerType domain.OwnerType) ([]domain.ChannelTemplate, error) {
+func (r *channelTemplateRepository) GetTemplatesByOwner(ctx context.Context, ownerID int64, ownerType domain.OwnerType) ([]domain.ChannelTemplate, error) {
 	// 获取模版列表
 	templates, err := r.dao.GetTemplateByOwner(ctx, ownerID, ownerType.String())
 	if err != nil {
