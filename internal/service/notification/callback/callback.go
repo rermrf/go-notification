@@ -3,8 +3,8 @@ package callback
 import (
 	"context"
 	"fmt"
-	notificationv1 "go-notification/api/proto/gen/api/proto/notification/v1"
 	clientv1 "go-notification/api/proto/gen/client/v1"
+	notificationv1 "go-notification/api/proto/gen/notification/v1"
 	"go-notification/internal/domain"
 	"go-notification/internal/errs"
 	mygrpc "go-notification/internal/pkg/grpc"
@@ -208,7 +208,7 @@ func (s *service) buildRequest(notification domain.Notification) *clientv1.Handl
 			},
 		},
 		Result: &notificationv1.SendNotificationResponse{
-			NotificationId: uint64(notification.ID),
+			NotificationId: notification.ID,
 			Status:         s.getStatus(notification),
 		},
 	}

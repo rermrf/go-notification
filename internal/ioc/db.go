@@ -2,6 +2,9 @@ package ioc
 
 import (
 	"github.com/spf13/viper"
+	"go-notification/internal/pkg/database/metrics"
+	"go-notification/internal/pkg/database/tracing"
+	"go-notification/internal/repository/dao"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -23,9 +26,20 @@ func InitDB() *gorm.DB {
 		panic("failed to connect database")
 	}
 
-	//err = dao.InitTables(db)
-	//if err != nil {
-	//	panic(err)
-	//}
+	tracePlugin := tracing.NewGormTracingPlugin()
+	metricsPlugin := metrics.NewGormMetricsPlugin()
+	err = db.Use(tracePlugin)
+	if err != nil {
+		panic(err)
+	}
+	err = db.Use(metricsPlugin)
+	if err != nil {
+		panic(err)
+	}
+
+	err = dao.InitTables(db)
+	if err != nil {
+		panic(err)
+	}
 	return db
 }
