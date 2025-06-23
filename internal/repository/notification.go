@@ -44,7 +44,7 @@ type notificationRepository struct {
 	logger     logger.Logger
 }
 
-func newNotificationRepository(dao dao.NotificationDAO, quotaCache cache.QuotaCache, logger logger.Logger) NotificationRepository {
+func NewNotificationRepository(dao dao.NotificationDAO, quotaCache cache.QuotaCache, logger logger.Logger) NotificationRepository {
 	return &notificationRepository{dao: dao, quotaCache: quotaCache, logger: logger}
 }
 

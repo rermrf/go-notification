@@ -31,6 +31,15 @@ type sendService struct {
 	sendStrategy    sendstrategy.SendStrategy
 }
 
+func NewSendService(notificationSvc Service, templateSvc manage.ChannelTemplateService, sendStrategy sendstrategy.SendStrategy) SendService {
+	return &sendService{
+		notificationSvc: notificationSvc,
+		templateSvc:     templateSvc,
+		idGenerator:     id_generator.NewGenerator(),
+		sendStrategy:    sendStrategy,
+	}
+}
+
 // SendNotification 单条同步发送
 func (s *sendService) SendNotification(ctx context.Context, n domain.Notification) (domain.SendResponse, error) {
 	resp := domain.SendResponse{

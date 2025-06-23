@@ -3,7 +3,7 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: go-notification/api/gen
+      value: go-notification/api/proto/gen
 plugins:
   # 默认用最新版本
   - remote: buf.build/protocolbuffers/go

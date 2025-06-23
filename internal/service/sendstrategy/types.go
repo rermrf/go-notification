@@ -23,7 +23,7 @@ type Dispatcher struct {
 	defaultStrategy *DefaultSendStrategy
 }
 
-func NewDispatcher(immediate *ImmediateSendStrategy, defaultStrategy *DefaultSendStrategy) *Dispatcher {
+func NewDispatcher(immediate *ImmediateSendStrategy, defaultStrategy *DefaultSendStrategy) SendStrategy {
 	return &Dispatcher{immediate: immediate, defaultStrategy: defaultStrategy}
 }
 

@@ -20,7 +20,7 @@ type Dispatcher struct {
 	channels map[domain.Channel]Channel
 }
 
-func NewDispatcher(channels map[domain.Channel]Channel) *Dispatcher {
+func NewDispatcher(channels map[domain.Channel]Channel) Channel {
 	return &Dispatcher{
 		channels: channels,
 	}

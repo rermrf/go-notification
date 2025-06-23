@@ -63,7 +63,7 @@ type txNotificationDAO struct {
 	db *gorm.DB
 }
 
-func newTxNotificationDAO(db *gorm.DB) TxNotificationDAO {
+func NewTxNotificationDAO(db *gorm.DB) TxNotificationDAO {
 	return &txNotificationDAO{db: db}
 }
 

@@ -25,7 +25,7 @@ type staticScheduler struct {
 	batchSize int
 }
 
-func NewStaticScheduler(notificationSvc notification.Service, sender sender.NotificationSender, dclient dlock.Client, log logger.Logger) NotificationScheduler {
+func NewScheduler(notificationSvc notification.Service, sender sender.NotificationSender, dclient dlock.Client, log logger.Logger) NotificationScheduler {
 	const defaultBatchSize = 10
 	return &staticScheduler{
 		notificationSvc: notificationSvc,

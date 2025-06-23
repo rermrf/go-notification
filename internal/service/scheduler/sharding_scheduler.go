@@ -35,7 +35,7 @@ func NewShardingScheduler(
 	shardingStrategy sharding.ShardingStrategy,
 	sem loopjob.ResourceSemaphore,
 	minLoopDuration time.Duration,
-	batchSize int64,
+	batchSize int,
 	batchSizeAdjuster batchSize.Adjuster,
 	errorEvents *bitring.BitRing,
 	log logger.Logger,

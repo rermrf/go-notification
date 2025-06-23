@@ -918,8 +918,8 @@ const file_config_v1_config_proto_rawDesc = "" +
 	"\aGetByID\x12\x19.config.v1.GetByIDRequest\x1a\x1a.config.v1.GetByIDResponse\"\x00\x12?\n" +
 	"\x06Delete\x12\x18.config.v1.DeleteRequest\x1a\x19.config.v1.DeleteResponse\"\x00\x12K\n" +
 	"\n" +
-	"SaveConfig\x12\x1c.config.v1.SaveConfigRequest\x1a\x1d.config.v1.SaveConfigResponse\"\x00B\x8d\x01\n" +
-	"\rcom.config.v1B\vConfigProtoP\x01Z*go-notification/api/gen/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
+	"SaveConfig\x12\x1c.config.v1.SaveConfigRequest\x1a\x1d.config.v1.SaveConfigResponse\"\x00B\x93\x01\n" +
+	"\rcom.config.v1B\vConfigProtoP\x01Z0go-notification/api/proto/gen/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 
 var (

@@ -33,7 +33,7 @@ type Provider struct {
 	name                string
 }
 
-func NewProvider(provider provider.Provider, name string) *Provider {
+func NewProvider(name string, provider provider.Provider) *Provider {
 	sendDurationSummary := prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
 			Name: "provider_send_duration_seconds",

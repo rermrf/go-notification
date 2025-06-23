@@ -1497,8 +1497,8 @@ const file_notification_v1_notification_proto_rawDesc = "" +
 	"\x1aSendNotificationBatchAsync\x122.notification.v1.SendNotificationBatchAsyncRequest\x1a3.notification.v1.SendNotificationBatchAsyncResponse\x12R\n" +
 	"\tPrepareTx\x12!.notification.v1.PrepareTxRequest\x1a\".notification.v1.PrepareTxResponse\x12O\n" +
 	"\bCommitTx\x12 .notification.v1.CommitTxRequest\x1a!.notification.v1.CommitTxResponse\x12O\n" +
-	"\bCancelTx\x12 .notification.v1.CancelTxRequest\x1a!.notification.v1.CancelTxResponseB\xbd\x01\n" +
-	"\x13com.notification.v1B\x11NotificationProtoP\x01Z6go-notification/api/gen/notification/v1;notificationv1\xa2\x02\x03NXX\xaa\x02\x0fNotification.V1\xca\x02\x0fNotification\\V1\xe2\x02\x1bNotification\\V1\\GPBMetadata\xea\x02\x10Notification::V1b\x06proto3"
+	"\bCancelTx\x12 .notification.v1.CancelTxRequest\x1a!.notification.v1.CancelTxResponseB\xc3\x01\n" +
+	"\x13com.notification.v1B\x11NotificationProtoP\x01Z<go-notification/api/proto/gen/notification/v1;notificationv1\xa2\x02\x03NXX\xaa\x02\x0fNotification.V1\xca\x02\x0fNotification\\V1\xe2\x02\x1bNotification\\V1\\GPBMetadata\xea\x02\x10Notification::V1b\x06proto3"
 
 var (
 	file_notification_v1_notification_proto_rawDescOnce sync.Once

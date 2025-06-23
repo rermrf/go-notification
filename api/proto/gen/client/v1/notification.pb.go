@@ -7,7 +7,7 @@
 package clientv1
 
 import (
-	v1 "go-notification/api/gen/notification/v1"
+	v1 "go-notification/api/proto/gen/notification/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -144,8 +144,8 @@ const file_client_v1_notification_proto_rawDesc = "" +
 	" HandleNotificationResultResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess2\x86\x01\n" +
 	"\x0fCallbackService\x12s\n" +
-	"\x18HandleNotificationResult\x12*.client.v1.HandleNotificationResultRequest\x1a+.client.v1.HandleNotificationResultResponseB\x93\x01\n" +
-	"\rcom.client.v1B\x11NotificationProtoP\x01Z*go-notification/api/gen/client/v1;clientv1\xa2\x02\x03CXX\xaa\x02\tClient.V1\xca\x02\tClient\\V1\xe2\x02\x15Client\\V1\\GPBMetadata\xea\x02\n" +
+	"\x18HandleNotificationResult\x12*.client.v1.HandleNotificationResultRequest\x1a+.client.v1.HandleNotificationResultResponseB\x99\x01\n" +
+	"\rcom.client.v1B\x11NotificationProtoP\x01Z0go-notification/api/proto/gen/client/v1;clientv1\xa2\x02\x03CXX\xaa\x02\tClient.V1\xca\x02\tClient\\V1\xe2\x02\x15Client\\V1\\GPBMetadata\xea\x02\n" +
 	"Client::V1b\x06proto3"
 
 var (

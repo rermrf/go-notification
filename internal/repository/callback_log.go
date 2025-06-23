@@ -17,7 +17,7 @@ type callbackLogRepository struct {
 	dao              dao.CallbackLogDAO
 }
 
-func newCallbackLogRepository(notificationRepo NotificationRepository, dao dao.CallbackLogDAO) *callbackLogRepository {
+func NewCallbackLogRepository(notificationRepo NotificationRepository, dao dao.CallbackLogDAO) CallbackLogRepository {
 	return &callbackLogRepository{notificationRepo: notificationRepo, dao: dao}
 }
 
@@ -35,6 +35,7 @@ func (c callbackLogRepository) Find(ctx context.Context, startTime, batchSize, s
 		n, _ := c.notificationRepo.GetByID(ctx, entity.NotificationID)
 		result = append(result, c.toDomain(entity, n))
 	}
+	return result, nextStartID, nil
 }
 
 func (c callbackLogRepository) Update(ctx context.Context, logs []domain.CallbackLog) error {

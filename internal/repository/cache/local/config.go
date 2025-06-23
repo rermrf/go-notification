@@ -23,7 +23,7 @@ type Cache struct {
 	c      *ca.Cache
 }
 
-func NewLocalCache(rdb *redis.Client, logger logger.Logger, c *ca.Cache) cache.ConfigCache {
+func NewLocalCache(rdb *redis.Client, logger logger.Logger, c *ca.Cache) *Cache {
 	localCache := &Cache{
 		rdb:    rdb,
 		logger: logger,

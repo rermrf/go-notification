@@ -33,6 +33,10 @@ type txNotificationService struct {
 	sender    sender.NotificationSender
 }
 
+func NewTxNotificationService(repo repository.TxNotificationRepository, notiRepo repository.NotificationRepository, configSvc config.BusinessConfigService, logger logger.Logger, lock dlock.Client, sender sender.NotificationSender) TxNotificationService {
+	return &txNotificationService{repo: repo, notiRepo: notiRepo, configSvc: configSvc, logger: logger, lock: lock, sender: sender}
+}
+
 const defaultBatchSize = 10
 
 func (s *txNotificationService) StartTask(ctx context.Context) {

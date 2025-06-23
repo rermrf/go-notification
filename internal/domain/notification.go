@@ -3,7 +3,7 @@ package domain
 import (
 	"encoding/json"
 	"fmt"
-	notificationv1 "go-notification/api/proto/gen/api/proto/notification/v1"
+	notificationv1 "go-notification/api/proto/gen/notification/v1"
 	"go-notification/internal/errs"
 	"strconv"
 	"time"

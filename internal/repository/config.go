@@ -6,6 +6,8 @@ import (
 	log "go-notification/internal/pkg/logger"
 	"go-notification/internal/pkg/sqlx"
 	"go-notification/internal/repository/cache"
+	"go-notification/internal/repository/cache/local"
+	"go-notification/internal/repository/cache/redis"
 	"go-notification/internal/repository/dao"
 	"time"
 )
@@ -26,7 +28,7 @@ type businessConfigRepository struct {
 	logger     log.Logger
 }
 
-func NewBusinessConfigRepository(dao dao.BusinessConfigDAO, localCache cache.ConfigCache, redisCache cache.ConfigCache, logger log.Logger) BusinessConfigRepository {
+func NewBusinessConfigRepository(dao dao.BusinessConfigDAO, localCache *local.Cache, redisCache *redis.Cache, logger log.Logger) BusinessConfigRepository {
 	res := &businessConfigRepository{
 		dao:        dao,
 		localCache: localCache,

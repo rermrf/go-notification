@@ -10,6 +10,7 @@ import (
 	"go-notification/internal/errs"
 	notificationSvc "go-notification/internal/service/notification"
 	templatesvc "go-notification/internal/service/template/manage"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -492,4 +493,8 @@ func (n NotificationServer) buildTxNotification(ctx context.Context, notificatio
 		Notification: noti,
 		Status:       domain.TxNotificationStatusPrepare,
 	}, nil
+}
+
+func (n NotificationServer) Register(server *grpc.Server) {
+	notificationv1.RegisterNotificationServiceServer(server, n)
 }

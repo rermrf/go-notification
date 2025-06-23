@@ -56,7 +56,7 @@ type providerDAO struct {
 	encryptKey []byte
 }
 
-func NewProviderDAO(db *gorm.DB, encryptKey []byte) ProviderDAO {
+func NewProviderDAO(db *gorm.DB, encryptKey string) ProviderDAO {
 	// 确保加密密钥长度为32字节
 	key := make([]byte, KEYSIZE)
 	copy(key, encryptKey)

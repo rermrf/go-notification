@@ -218,8 +218,8 @@ const file_notification_v1_notification_query_proto_rawDesc = "" +
 	"\aresults\x18\x01 \x03(\v2).notification.v1.SendNotificationResponseR\aresults2\x84\x02\n" +
 	"\x18NotificationQueryService\x12j\n" +
 	"\x11QueryNotification\x12).notification.v1.QueryNotificationRequest\x1a*.notification.v1.QueryNotificationResponse\x12|\n" +
-	"\x17BatchQueryNotifications\x12/.notification.v1.BatchQueryNotificationsRequest\x1a0.notification.v1.BatchQueryNotificationsResponseB\xc2\x01\n" +
-	"\x13com.notification.v1B\x16NotificationQueryProtoP\x01Z6go-notification/api/gen/notification/v1;notificationv1\xa2\x02\x03NXX\xaa\x02\x0fNotification.V1\xca\x02\x0fNotification\\V1\xe2\x02\x1bNotification\\V1\\GPBMetadata\xea\x02\x10Notification::V1b\x06proto3"
+	"\x17BatchQueryNotifications\x12/.notification.v1.BatchQueryNotificationsRequest\x1a0.notification.v1.BatchQueryNotificationsResponseB\xc8\x01\n" +
+	"\x13com.notification.v1B\x16NotificationQueryProtoP\x01Z<go-notification/api/proto/gen/notification/v1;notificationv1\xa2\x02\x03NXX\xaa\x02\x0fNotification.V1\xca\x02\x0fNotification\\V1\xe2\x02\x1bNotification\\V1\\GPBMetadata\xea\x02\x10Notification::V1b\x06proto3"
 
 var (
 	file_notification_v1_notification_query_proto_rawDescOnce sync.Once

@@ -33,7 +33,7 @@ type service struct {
 	logger       logger.Logger
 }
 
-func newService(configSvc configSvc.BusinessConfigService, repo repository.CallbackLogRepository, logger logger.Logger) Service {
+func NewService(configSvc configSvc.BusinessConfigService, repo repository.CallbackLogRepository, logger logger.Logger) Service {
 	return &service{
 		configSvc:    configSvc,
 		bizID2Config: sync.Map{},

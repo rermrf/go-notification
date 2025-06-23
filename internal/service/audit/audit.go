@@ -11,6 +11,10 @@ type Service interface {
 
 type service struct{}
 
+func NewService() Service {
+	return &service{}
+}
+
 func (s service) CreateAudit(ctx context.Context, req domain.Audit) (int64, error) {
 	//TODO implement me
 	panic("implement me")

@@ -16,7 +16,7 @@ type Cache struct {
 	logger logger.Logger
 }
 
-func NewCache(client redis.Cmdable, logger logger.Logger) cache.ConfigCache {
+func NewCache(client redis.Cmdable, logger logger.Logger) *Cache {
 	return &Cache{}
 }
 
